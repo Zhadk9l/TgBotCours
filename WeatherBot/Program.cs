@@ -9,14 +9,18 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Timers;
+using Telegram.Bot.Types.Payments;
 
 namespace TgBotCours
 {
     class Program
     {
         private static string token { get; set; } = "1971475561:AAFALIrkTCIksyhCAIvk3JoNDzJ3RAeDXOU";
+        private static string paytoken = "535936410:LIVE:1971475561_c25ea9f9-8eff-4463-acde-01bf9ce445de";
         private static TelegramBotClient client;
-        
+        private static Telegram.Bot.Args.CallbackQueryEventArgs ev;
+
+
         static string NameHero;
         static string answerOnJoke;
         static string answerHero;
@@ -26,6 +30,7 @@ namespace TgBotCours
         static List<long> idMatch = new List<long>();
 
         public static long chatId;
+
 
 
         private static Timer aTimer;
@@ -47,52 +52,59 @@ namespace TgBotCours
         {
             var message = e.Message;
             chatId = message.Chat.Id;
-            
+            string info = "/start - Початок\r\n" +
+                "/joke - Смішнявка\r\n" +
+                "/herostats - Стата героя дота2 {/herostats назва_героя}\r\n " +
+                "/teamstats - Стата команди дота2 {/teamstats назва_команди}\r\n " +
+                "/teamtop - Топ команд за рейтенгом {/teamtop колово_місць}\r\n " +
+                "/heroescompare - Порівняння 2 героїв {/heroescompare назва_гер1&назва_гер2}\r\n " +
+                "/teamadd - Підписатися на команду {/teamadd назва_команди}\r\n " +
+                "/teamdel - Відписатися від команди{/teamdel назва_команди}\r\n " +
+                "/teamlive - Матчі команд лайв.\r\n " +
+                "/tournamentslist - Список майбутніх турнірів\r\n" +
+                "/donate\r\n";
+
             //Timer
             aTimer = new System.Timers.Timer();
-            aTimer.Interval = /*300000*/10000;
-
-            // Hook up the Elapsed event for the timer. 
+            aTimer.Interval = 10000;
             aTimer.Elapsed += OnTimedEvent;
-
-            // Have the timer fire repeated events (true is the default)
             aTimer.AutoReset = true;
-
-            // Start the timer
             aTimer.Enabled = true;
 
-
             var keyboard = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(new[]
-{
-                    new [] // first row
+            {
+                    new []
                     {
-                        InlineKeyboardButton.WithCallbackData("1","one" ),
-                        InlineKeyboardButton.WithCallbackData("2","two"),
-                    },
-                    new [] // second row
-                    {
-                        InlineKeyboardButton.WithCallbackData("3","three"),
-                        InlineKeyboardButton.WithCallbackData("4","four"),
+                        
+                        InlineKeyboardButton.WithPayment("donate")
                     }
-                    });
+            }) ;
+            List<LabeledPrice> prices = new List<LabeledPrice>() { new LabeledPrice("Donate", 10000) };
             if (message.Type == Telegram.Bot.Types.Enums.MessageType.Text)
             {
                 if (message.Text == "/start")
                 {
-                    await client.SendTextMessageAsync(chatId, "Слава Україні!",replyMarkup: keyboard);
+                    await client.SendTextMessageAsync(chatId, "Слава Україні!");
                     UserInfo(message);
 
                 }
 
-                if (message.Text == "/joke")
+                else if (message.Text == "/donate")
+                {
+                    await client.SendInvoiceAsync((int)chatId, "Hi", "Donate me pls", "abc", paytoken, "abc", "UAH", prices,replyMarkup: keyboard);
+                    UserInfo(message);
+
+                }
+
+                else if (message.Text == "/joke")
                 {
                     Joke(chatId);
                     await client.SendTextMessageAsync(chatId, answerOnJoke);
                     UserInfo(message);
                     
                 }
-                
-                if (message.Text.StartsWith("/herostats "))
+
+                else if (message.Text.StartsWith("/herostats "))
                 {
                     string[] Heroes_str = message.Text.Split(" ");
                     string NameHero = null;
@@ -111,7 +123,7 @@ namespace TgBotCours
                     UserInfo(message);
                 }
 
-                if (message.Text.StartsWith("/teamstats "))
+                else if (message.Text.StartsWith("/teamstats "))
                 {
                     string[] Team_str = message.Text.Split(" ");
                     string NameTeam = null;
@@ -130,7 +142,7 @@ namespace TgBotCours
                     UserInfo(message);
                 }
 
-                if (message.Text.StartsWith("/teamtop "))
+                else if (message.Text.StartsWith("/teamtop "))
                 {
                     string[] Top_str = message.Text.Split(" ");
                     int TopCount = 0;
@@ -142,22 +154,35 @@ namespace TgBotCours
                     TopList.Remove("/teamtop");
                     foreach (string item in TopList)
                     {
-                        TopCount = Int32.Parse(item);
+                        try
+                        {
+                            TopCount = Int32.Parse(item);
+                        }
+                        catch(FormatException abc)
+                        {
+                            await client.SendTextMessageAsync(chatId, abc.Message);
+                        }
                     }
-
-                    TeamTop(TopCount);
-                    await client.SendTextMessageAsync(chatId, answerteam);
-                    UserInfo(message);
+                    if ((TopCount <= 0)||(TopCount>100))
+                    {
+                        await client.SendTextMessageAsync(chatId, "Козаче щось ти ввів не так. Cпробуй /info щоб зрозуміти");
+                    }
+                    else
+                    {
+                        TeamTop(TopCount);
+                        await client.SendTextMessageAsync(chatId, answerteam);
+                        UserInfo(message);
+                    }
                 }
 
-                if (message.Text.StartsWith("/tournamentslist"))
+                else if (message.Text.StartsWith("/tournamentslist"))
                 {
                     TournamentList();
                     await client.SendTextMessageAsync(chatId, answerteam);
                     UserInfo(message);
                 }
 
-                if (message.Text.StartsWith("/teamadd "))
+                else if (message.Text.StartsWith("/teamadd "))
                 {
                     string[] Team_str = message.Text.Split(" ");
                     string NameTeam = null;
@@ -176,7 +201,7 @@ namespace TgBotCours
                     UserInfo(message);
                 }
 
-                if (message.Text.StartsWith("/teamdel "))
+                else if (message.Text.StartsWith("/teamdel "))
                 {
                     string[] Team_str = message.Text.Split(" ");
                     string NameTeam = null;
@@ -195,14 +220,8 @@ namespace TgBotCours
                     UserInfo(message);
                 }
 
-                if (message.Text.StartsWith("/teampast"))
-                {
-                    TeamPast();
-                    await client.SendTextMessageAsync(chatId, answerteam);
-                    UserInfo(message);
-                }
 
-                if (message.Text.StartsWith("/teamlive"))
+                else if (message.Text.StartsWith("/teamlive"))
                 {
                     TeamLive();
                     await client.SendTextMessageAsync(chatId, answerteam);
@@ -210,7 +229,7 @@ namespace TgBotCours
                 }
 
 
-                if (message.Text.StartsWith("/heroescompare "))
+                else if (message.Text.StartsWith("/heroescompare "))
                 {
                     string[] Heroes_str = message.Text.Split(" ");
                     string NameHeroes = null;
@@ -227,6 +246,16 @@ namespace TgBotCours
                     HeroCompare(NameHeroes);
                     await client.SendTextMessageAsync(chatId, answerOncompare);
                     UserInfo(message);
+                }
+
+                else if (message.Text.StartsWith("/info"))
+                {
+                    await client.SendTextMessageAsync(chatId, info);
+                }
+
+                else
+                {
+                    await client.SendTextMessageAsync(chatId, "Козаче щось ти ввів не так. Cпробуй /info щоб зрозуміти");
                 }
             }
             
@@ -248,6 +277,10 @@ namespace TgBotCours
             {
                 response = Streamreader.ReadToEnd();
             }
+            if (response == null)
+            {
+                response = "Козаче щось ти ввів не так. Cпробуй /info щоб зрозуміти";
+            }
             answerteam = response;
 
         }
@@ -263,30 +296,22 @@ namespace TgBotCours
                 response = Streamreader.ReadToEnd();
             }
             HeroDotaResponse Hero = JsonConvert.DeserializeObject<HeroDotaResponse>(response);
-            answerHero = $"Hero Name: {Hero.localized_name}\r\n" +
+            if (Hero != null)
+            {
+                answerHero = $"Hero Name: {Hero.localized_name}\r\n" +
                          $"Attack type: {Hero.attack_type}\r\n" +
                          $"Healt: {Hero.base_health}\r\n" +
                          $"Mana: {Hero.base_mana}\r\n" +
                          $"Armor: {Hero.base_armor}\r\n" +
                          $"Move speed: {Hero.move_speed}\r\n" +
                          $"Attack damage: {Hero.base_attack_min}-{Hero.base_attack_max}";
-
-        }
-
-        private static void TeamPast()
-        {
-
-            string url = "https://localhost:7102/Dota/TeamsMatchesPast";
-            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
-            string response;
-            using (StreamReader Streamreader = new StreamReader(httpWebResponse.GetResponseStream()))
-            {
-                response = Streamreader.ReadToEnd();
             }
-            answerteam = response;
-
+            else
+            {
+                answerHero = "Козаче щось ти ввів не так. Cпробуй /info щоб зрозуміти";
+            }
         }
+
         private static void TournamentList()
         {
 
@@ -313,7 +338,7 @@ namespace TgBotCours
             {
                 response = Streamreader.ReadToEnd();
             }
-            if (response == "")
+            if (response == "[]")
             {
                 answerteam = "Зара live матчей цієї команди немає";
             }
@@ -372,11 +397,18 @@ namespace TgBotCours
                 response = Streamreader.ReadToEnd();
             }
             TeamDotaResponse TeamDota = JsonConvert.DeserializeObject<TeamDotaResponse>(response);
-            answerteam = $"Name: {TeamDota.name}\r\n" +
+            if (TeamDota != null)
+            {
+                answerteam = $"Name: {TeamDota.name}\r\n" +
                          $"Rating: {TeamDota.rating}\r\n" +
                          $"Wins: {TeamDota.wins}\r\n" +
                          $"Losses: {TeamDota.losses}\r\n" +
                          $"";
+            }
+            else
+            {
+                answerteam = "Козаче щось ти ввів не так. Cпробуй /info щоб зрозуміти";
+            }
 
         }
         private static void TeamAdd(string NameTeam)
@@ -422,7 +454,14 @@ namespace TgBotCours
             {
                 response = Streamreader.ReadToEnd();
             }
-            answerOncompare = response;
+            if (response != "")
+            {
+                answerOncompare = response;
+            }
+            else
+            {
+                answerOncompare = "Козаче щось ти ввів не так. Cпробуй /info щоб зрозуміти";
+            }
 
         }
 
