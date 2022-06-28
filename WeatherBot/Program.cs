@@ -269,7 +269,7 @@ namespace TgBotCours
         private static void TeamTop(int CountofTeams)
         {
 
-            string url = "https://localhost:7102/Dota/Teamtop/" + CountofTeams;
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/Teamtop/" + CountofTeams;
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
             string response;
@@ -287,7 +287,7 @@ namespace TgBotCours
         private static void HeroStats(string NameHero)
         {
             
-            string url = "https://localhost:7102/Dota/HeroByName/" + NameHero;
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/HeroByName/" + NameHero;
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
             string response;
@@ -315,7 +315,7 @@ namespace TgBotCours
         private static void TournamentList()
         {
 
-            string url = "https://localhost:7102/Dota/Tournaments";
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/Tournaments";
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
             string response;
@@ -330,7 +330,7 @@ namespace TgBotCours
         private static void TeamLive()
         {
 
-            string url = "https://localhost:7102/Dota/TeamsMatchesLive";
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/TeamsMatchesLive";
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
             string response;
@@ -352,7 +352,7 @@ namespace TgBotCours
         private static async void Live()
         {
 
-            string url = "https://localhost:7102/Dota/TeamsMatchesLive";
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/TeamsMatchesLive";
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
             string response;
@@ -388,7 +388,7 @@ namespace TgBotCours
         private static void TeamStats(string NameTeam)
         {
 
-            string url = "https://localhost:7102/Dota/TeambyName/" + NameTeam;
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/TeambyName/" + NameTeam;
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
             string response;
@@ -414,7 +414,7 @@ namespace TgBotCours
         private static void TeamAdd(string NameTeam)
         {
 
-            string url = "https://localhost:7102/Dota/AddTeamName/" + NameTeam;
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/AddTeamName/" + NameTeam;
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             httpWebRequest.Method = "POST";
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
@@ -430,7 +430,7 @@ namespace TgBotCours
         private static void TeamDel(string NameTeam)
         {
 
-            string url = "https://localhost:7102/Dota/DelTeam/" + NameTeam;
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/DelTeam/" + NameTeam;
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             httpWebRequest.Method= "DELETE";
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
@@ -446,7 +446,7 @@ namespace TgBotCours
         private static void HeroCompare(string NameHeroes)
         {
 
-            string url = "https://localhost:7102/Dota/CompareHeroes/" + NameHeroes;
+            string url = "https://apitestcours20220628192556.azurewebsites.net/Dota/CompareHeroes/" + NameHeroes;
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest?.GetResponse();
             string response;
