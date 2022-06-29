@@ -10,19 +10,22 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Timers;
 using Telegram.Bot.Types.Payments;
+using Telegram.Bot.Types;
+using Telegram.Bot.Polling;
 
 namespace TgBotCours
 {
     class Program
     {
-        private static string token { get; set; } = "1971475561:AAFALIrkTCIksyhCAIvk3JoNDzJ3RAeDXOU";
+        private static string token { get; set; } = "5590295108:AAHZsxkIGqBI3SDkihK-Oi7qCEmRwWQa3W0";
         private static string paytoken = "535936410:LIVE:1971475561_c25ea9f9-8eff-4463-acde-01bf9ce445de";
         private static TelegramBotClient client;
-        private static Telegram.Bot.Args.CallbackQueryEventArgs ev;
+        private static System.Threading.CancellationToken cancellationTokenSource;
+        private static ReceiverOptions receiverOptions;
 
 
         static string NameHero;
-        static string answerOnJoke;
+        static string answerOnJoke; 
         static string answerHero;
         static string answerteam;
         static string answerOncompare;
@@ -36,21 +39,44 @@ namespace TgBotCours
         private static Timer aTimer;
         public static void Main(string[] args)
         {
-            client = new TelegramBotClient(token) { Timeout = TimeSpan.FromSeconds(10)};
+            client = new TelegramBotClient(token);
+            client.StartReceiving(HandlerUpdate, HandleError, receiverOptions, cancellationTokenSource );
             var me = client.GetMeAsync().Result;
             Console.WriteLine($"Bot_Id: {me.Id} \nBot_Name: {me.FirstName} ");
-            
 
-            client.OnMessage += Bot_OnMessage ;
-            client.StartReceiving();
-            Console.ReadLine();
-            client.StopReceiving();
 
+            Console.ReadKey();
         }
-        
-        private static async void Bot_OnMessage(object sender, MessageEventArgs e)
+        private static Task HandleError(ITelegramBotClient botClient, Exception exception, System.Threading.CancellationToken cancellationToken)
         {
-            var message = e.Message;
+            var ErrorMessage = exception switch
+            {
+                Telegram.Bot.Exceptions.ApiRequestException apiRequestException
+                    => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                _ => exception.ToString()
+            };
+
+            Console.WriteLine(ErrorMessage);
+
+            return Task.CompletedTask;
+        }
+
+        private async static Task HandlerUpdate(ITelegramBotClient botClient, Update update, System.Threading.CancellationToken cancellationToken)
+        {
+            if (update.Type != UpdateType.Message)
+            {
+                return;
+            }
+            if (update.Message!.Type != MessageType.Text)
+            {
+                return;
+            }
+
+            await Bot_OnMessage(botClient, update.Message);
+        }
+
+        private static async Task Bot_OnMessage(object sender, Message message)
+        {
             chatId = message.Chat.Id;
             string info = "/start - Початок\r\n" +
                 "/joke - Смішнявка\r\n" +
@@ -89,12 +115,12 @@ namespace TgBotCours
 
                 }
 
-                else if (message.Text == "/donate")
+                /*/else if (message.Text == "/donate")
                 {
                     await client.SendInvoiceAsync((int)chatId, "Hi", "Donate me pls", "abc", paytoken, "abc", "UAH", prices,replyMarkup: keyboard);
                     UserInfo(message);
 
-                }
+                }/*/
 
                 else if (message.Text == "/joke")
                 {
