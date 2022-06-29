@@ -18,7 +18,7 @@ namespace TgBotCours
     class Program
     {
         private static string token { get; set; } = "5590295108:AAHZsxkIGqBI3SDkihK-Oi7qCEmRwWQa3W0";
-        private static string paytoken = "535936410:LIVE:1971475561_c25ea9f9-8eff-4463-acde-01bf9ce445de";
+        private static string paytoken = "535936410:LIVE:5590295108_c25ea9f9-8eff-4463-acde-01bf9ce445de";
         private static TelegramBotClient client;
         private static System.Threading.CancellationToken cancellationTokenSource;
         private static ReceiverOptions receiverOptions;
@@ -110,17 +110,18 @@ namespace TgBotCours
             {
                 if (message.Text == "/start")
                 {
-                    await client.SendTextMessageAsync(chatId, "Слава Україні!");
+                    await client.SendTextMessageAsync(chatId, "Слава Україні!/info");
                     UserInfo(message);
 
                 }
 
-                /*/else if (message.Text == "/donate")
+                else if (message.Text == "/donate")
                 {
-                    await client.SendInvoiceAsync((int)chatId, "Hi", "Donate me pls", "abc", paytoken, "abc", "UAH", prices,replyMarkup: keyboard);
+                    
                     UserInfo(message);
+                    await client.SendTextMessageAsync(chatId, "В цій версії не працює");
 
-                }/*/
+                }
 
                 else if (message.Text == "/joke")
                 {
